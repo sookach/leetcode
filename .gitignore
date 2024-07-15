@@ -2,3 +2,4 @@ main.cc
 build
 input.txt
 .vscode
+.cache
