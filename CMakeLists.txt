@@ -4,7 +4,6 @@ project(leetcode)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_COMPILER clang++)
 
 add_executable(main main.cc)
 add_executable(brace brace.cc)
