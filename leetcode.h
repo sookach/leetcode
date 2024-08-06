@@ -336,7 +336,7 @@ template <size_t N> struct union_find final {
 };
 
 template <size_t N> struct fenwick final {
-  std::array<int, N> a{};
+  std::array<int, N> a = {};
 
   constexpr void add(int i, int x) noexcept {
     for (; i < N; i += i & -i)
@@ -344,7 +344,7 @@ template <size_t N> struct fenwick final {
   }
 
   constexpr int find(int i) noexcept {
-    int x{};
+    int x = 0;
     for (; i != 0; i -= i & -i)
       x += a[i];
     return x;
