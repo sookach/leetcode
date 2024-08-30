@@ -350,3 +350,34 @@ template <size_t N> struct fenwick final {
     return x;
   }
 };
+
+template <std::size_t N> struct dijkstra final {
+  using graph_t =
+      std::array<std::vector<std::pair<std::size_t, std::size_t>>, N>;
+  std::array<std::size_t, N> operator()(graph_t a, std::size_t src) {
+    std::priority_queue<std::pair<int, int>> q;
+    std::array<std::size_t, N> d;
+    std::ranges::fill(d, std::numeric_limits<std::size_t>::max());
+
+    q.emplace(0, src);
+
+    for (; !std::empty(q);) {
+      auto [x, y] = q.top();
+      q.pop();
+
+      if (x > d[y])
+        continue;
+
+      d[y] = x;
+
+      for (auto &&[v, e] : a[y]) {
+        if (d[v] > x + e) {
+          d[v] = x + e;
+          q.emplace(x + e, v);
+        }
+      }
+    }
+
+    return d;
+  }
+};
