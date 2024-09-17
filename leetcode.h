@@ -273,33 +273,21 @@ inline static constexpr struct {
   }
 } recurse{};
 
-inline static constexpr struct {
-  std::vector<std::string> operator()(std::string &&s,
-                                      char delim = ' ') const noexcept {
-    std::vector<std::string> v{};
-
-    auto first{std::move_iterator{std::cbegin(s)}},
-        last{std::move_iterator{std::cend(s)}};
-
-    for (;;) {
-      first = std::find_if(first, last,
-                           [delim](auto &&x) -> bool { return x != delim; });
-
-      if (first == last)
-        break;
-
-      auto next{std::find(first, last, delim)};
-      v.emplace_back(first, next);
-
-      if (next == last)
-        break;
-
-      first = next + 1;
-    }
-
-    return v;
+auto split = [](std::string_view S, char D = ' ') {
+  std::vector<std::string> V;
+    for (auto I = std::cbegin(S), E = std::cend(S); I != E;) {
+    I = std::find_if(I, E, [D](char C) { return C != D; });
+    if (I == E)
+      break;
+    auto J = std::find(I, E, D);
+    V.emplace_back(I, J);
+    if (J == E)
+      break;
+    I = J + 1;
   }
-} split{};
+
+  return V;
+};
 
 inline static constexpr struct {
   using point = std::pair<int, int>;
@@ -358,6 +346,7 @@ template <std::size_t N> struct dijkstra final {
   std::array<std::size_t, N> operator()(graph_t a, std::size_t src) {
     std::priority_queue<std::pair<int, int>> q;
     std::array<std::size_t, N> d;
+
     std::ranges::fill(d, std::numeric_limits<std::size_t>::max());
 
     q.emplace(0, src);
@@ -380,5 +369,76 @@ template <std::size_t N> struct dijkstra final {
     }
 
     return d;
+  }
+};
+
+template <std::size_t N> struct dijkstra_path final {
+  using graph_t =
+      std::array<std::vector<std::pair<std::size_t, std::size_t>>, N>;
+  std::array<std::size_t, N> operator()(graph_t a, std::size_t src) {
+    std::priority_queue<std::pair<int, int>> q;
+    std::array<std::size_t, N> d;
+    std::array<std::size_t, N> p;
+
+    std::ranges::fill(d, std::numeric_limits<std::size_t>::max());
+    std::iota(std::begin(p), std::end(p), 0);
+
+    q.emplace(0, src);
+
+    for (; !std::empty(q);) {
+      auto [x, y] = q.top();
+      q.pop();
+
+      if (x > d[y])
+        continue;
+
+      d[y] = x;
+
+      for (auto &&[v, e] : a[y]) {
+        if (d[v] > x + e) {
+          d[v] = x + e;
+          p[v] = y;
+          q.emplace(x + e, v);
+        }
+      }
+    }
+
+    return p;
+  }
+};
+
+template <std::size_t N> struct dijkstra_path_dist final {
+  using graph_t =
+      std::array<std::vector<std::pair<std::size_t, std::size_t>>, N>;
+  std::pair<std::array<std::size_t, N>, std::array<std::size_t, N>>
+  operator()(graph_t a, std::size_t src) {
+    std::priority_queue<std::pair<int, int>> q;
+    std::array<std::size_t, N> d;
+    std::array<std::size_t, N> p;
+
+    std::ranges::fill(d, std::numeric_limits<std::size_t>::max());
+    std::iota(std::begin(p), std::end(p), 0);
+
+    q.emplace(0, src);
+
+    for (; !std::empty(q);) {
+      auto [x, y] = q.top();
+      q.pop();
+
+      if (x > d[y])
+        continue;
+
+      d[y] = x;
+
+      for (auto &&[v, e] : a[y]) {
+        if (d[v] > x + e) {
+          d[v] = x + e;
+          p[v] = y;
+          q.emplace(x + e, v);
+        }
+      }
+    }
+
+    return {d, p};
   }
 };
