@@ -273,9 +273,9 @@ inline static constexpr struct {
   }
 } recurse{};
 
-auto split = [](std::string_view S, char D = ' ') {
+std::vector<std::string> split(std::string_view S, char D = ' ') {
   std::vector<std::string> V;
-    for (auto I = std::cbegin(S), E = std::cend(S); I != E;) {
+  for (auto I = std::cbegin(S), E = std::cend(S); I != E;) {
     I = std::find_if(I, E, [D](char C) { return C != D; });
     if (I == E)
       break;
@@ -285,9 +285,8 @@ auto split = [](std::string_view S, char D = ' ') {
       break;
     I = J + 1;
   }
-
   return V;
-};
+}
 
 inline static constexpr struct {
   using point = std::pair<int, int>;
