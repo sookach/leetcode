@@ -441,3 +441,31 @@ template <std::size_t N> struct dijkstra_path_dist final {
     return {d, p};
   }
 };
+
+struct trie final {
+  struct node final {
+    std::array<node *, 27> a = {};
+  };
+
+  node *n = new node;
+
+  void insert(std::string s) {
+    s.push_back('z' + 1);
+    for (node *n = n; auto &&x : s) {
+      if (n->a[x - 'a'] == nullptr)
+        n->a[x - 'a'] = new node;
+      n = n->a[x - 'a'];
+    }
+  }
+
+  bool starts_with(std::string_view s) {
+    for (node *n = n; auto &&x : s) {
+      if (n->a[x - 'a'] == nullptr)
+        return false;
+      n = n->a[x - 'a'];
+    }
+    return true;
+  }
+
+  bool contains(std::string s) { return starts_with(s + "{"); }
+};
