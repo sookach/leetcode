@@ -1,26 +1,39 @@
 class Solution {
 public:
-  bool hasIncreasingSubarrays(vector<int> &nums, int k) {
-    bitset<100> b;
+  int maxIncreasingSubarrays(vector<int> &nums) {
+    bitset<200'000> b;
     deque<int> q;
+    int i = 1, j = size(nums);
 
-    for (int i = 0; i != size(nums); ++i) {
-      if (!empty(q) && q.front() <= i - k)
-        q.pop_front();
+    for (; i != j - 1;) {
+      auto k = i + (j - i) / 2;
+      ([&] {
+        b.reset();
+        q.clear();
 
-      for (; !empty(q) && nums[q.back()] >= nums[i]; q.pop_back())
-        ;
+        for (int i = 0; i != size(nums); ++i) {
+          if (!empty(q) && q.front() <= i - k)
+            q.pop_front();
 
-      q.push_back(i);
+          for (; !empty(q) && nums[q.back()] >= nums[i]; q.pop_back())
+            ;
 
-      if (size(q) == k)
-        b.set(i);
+          q.push_back(i);
+
+          if (size(q) == k)
+            b.set(i);
+        }
+
+        for (int i = k - 1; i < size(nums) - k; ++i)
+          if (b.test(i) && b.test(i + k))
+            return true;
+
+        return false;
+      }()
+           ? i
+           : j) = k;
     }
 
-    for (int i = k - 1; i != size(nums) - k; ++i)
-      if (b.test(i) && b.test(i + k))
-        return true;
-
-    return false;
+    return i;
   }
 };
